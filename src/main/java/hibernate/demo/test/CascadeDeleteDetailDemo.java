@@ -6,34 +6,33 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
-public class DeleteDemo {
+public class CascadeDeleteDetailDemo {
     public static void main(String[] args) {
-        SessionFactory factory = new Configuration().configure().
-                addAnnotatedClass(Instructor.class).addAnnotatedClass(InstructorDetail.class).buildSessionFactory();
 
         //Create session
 
-        try (Session session = factory.getCurrentSession()) {
+        try (SessionFactory factory = new Configuration().configure().
+                addAnnotatedClass(Instructor.class).addAnnotatedClass(InstructorDetail.class).buildSessionFactory(); Session session = factory.getCurrentSession()) {
             //Begin
             session.beginTransaction();
 
             //Get instructor by id
-            int getId = 1111;
-            Instructor instructor = session.get(Instructor.class, getId);
+            int getId = 4;
+            InstructorDetail instructorDetail = session.get(InstructorDetail.class, getId);
+            //Remove the association
+            instructorDetail.getInstructor().setInstructorDetail(null);
 
-            System.out.println("Found: " + instructor);
+            System.out.println("Found: " + instructorDetail);
 
             //Delete the instructor
-            if(instructor != null){
+            if (instructorDetail != null) {
                 //NOTE: also delete instructor detail
-                session.delete(instructor);
+                session.delete(instructorDetail);
             }
             //Commit
             session.getTransaction().commit();
         } catch (Exception e) {
             System.out.println(e.toString());
-        } finally {
-            factory.close();
         }
     }
 }
